@@ -12,6 +12,8 @@ class FaceView: UIView {
     
     var scale: CGFloat = 0.9
     
+    var eyesOpen: Bool = true
+    
     private var faceRadius: CGFloat {
         
         return min(bounds.size.width, bounds.size.height) / 2 * scale
@@ -39,6 +41,22 @@ class FaceView: UIView {
         case right
     }
     
+    private func pathForMouth() -> UIBezierPath {
+        
+        let mouthWidth = faceRadius / Ratios.faceRadiusToMouthWidth
+        let mouthHeight = faceRadius / Ratios.faceRadiusToMouthHeight
+        let mouthOffset = faceRadius / Ratios.faceRadiusToMouthOffset
+       
+        let mouthRect = CGRect(x: faceCenter.x - mouthWidth / 2,
+                               y: faceCenter.y + mouthOffset,
+                               width: mouthWidth,
+                               height: mouthHeight)
+        
+        let path = UIBezierPath(rect: mouthRect)
+        
+        return path
+    }
+    
     private func pathForEye(_ eye: Eye) -> UIBezierPath{
         
         func centerOfEye(_ eye:Eye) -> CGPoint {
@@ -52,8 +70,23 @@ class FaceView: UIView {
         let eyeRadius = faceRadius / Ratios.faceRadiusToEyeRadius
         let eyeCenter = centerOfEye(eye)
         
-        let path = UIBezierPath(arcCenter: eyeCenter, radius: eyeRadius, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+        let path: UIBezierPath
+
+        if eyesOpen {
+
+            path = UIBezierPath(arcCenter: eyeCenter, radius: eyeRadius, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+            
+            
+        } else {
+            path = UIBezierPath()
+            path.move(to: CGPoint(x: eyeCenter.x - eyeRadius, y: eyeCenter.y))
+            path.addLine(to: CGPoint(x: eyeCenter.x + eyeRadius, y: eyeCenter.y))
+            
+            
+            
+        }
         
+
         path.lineWidth = 5.0
         
         return path
@@ -69,10 +102,8 @@ class FaceView: UIView {
         
         UIColor.blue.set()
         
-        pathForFace().stroke()
-        pathForEye(.left).stroke()
-        pathForEye(.right).stroke()
-        
+        [pathForFace(), pathForEye(.left), pathForEye(.right),  pathForMouth()].forEach {$0.stroke()}
+
         
     }
     
