@@ -41,7 +41,22 @@ class FaceView: UIView {
     
     private func pathForEye(_ eye: Eye) -> UIBezierPath{
         
+        func centerOfEye(_ eye:Eye) -> CGPoint {
+            let eyeOffset = faceRadius / Ratios.faceRadiusToEyeOffset
+            var eyeCenter = faceCenter
+            eyeCenter.y -= eyeOffset
+            eyeCenter.x += ((eye == .left) ? -1 : 1) * eyeOffset
+            return eyeCenter
+        }
         
+        let eyeRadius = faceRadius / Ratios.faceRadiusToEyeRadius
+        let eyeCenter = centerOfEye(eye)
+        
+        let path = UIBezierPath(arcCenter: eyeCenter, radius: eyeRadius, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+        
+        path.lineWidth = 5.0
+        
+        return path
         
     }
     
@@ -54,7 +69,9 @@ class FaceView: UIView {
         
         UIColor.blue.set()
         
-        pathForSkull().stroke()
+        pathForFace().stroke()
+        pathForEye(.left).stroke()
+        pathForEye(.right).stroke()
         
         
     }
